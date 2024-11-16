@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        
+        <form id="signupForm" action="/api/student/create" method="post">
+            <!-- for successMsg -->
+            <div class="success" id="successMsg"></div>
+        
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required>
+        
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Your email" required>
+        
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Your password" autocomplete="new-password" required>
+        
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm password" autocomplete="new-password" required>
+        
+            <div class="checkbox-container">
+                <input type="checkbox" id="termsCheckbox" required>
+                <label for="termsCheckbox">I agree to the <a href="#">terms and conditions</a></label>
+            </div>
+        
+            <!-- for errorMsg -->
+            <div class="error" id="errorMsg"></div>
+        
+            <button type="submit">Sign Up</button>
+        </form>
+        
+        <p>Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+
+    <script>
+        document.getElementById("signupForm").addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevents the default form submission behavior
+            
+            // Get values from the password and confirm password fields
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirm-password").value;
+    
+            // Clear previous error messages
+            const errorMsg = document.getElementById("errorMsg");
+            errorMsg.textContent = "";
+    
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                errorMsg.textContent = "Passwords do not match."; // Set error message
+                return; // Stop form submission
+            }
+    
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData); // Converts FormData to an object
+    
+            try {
+                const response = await fetch("http://localhost:8080/api/student/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json" // Specify content type
+                    },
+                    body: JSON.stringify(data) // Convert the object to a JSON string
+                });
+    
+                if (response.ok) {
+                    const student = await response.json(); // Parse JSON response
+                    alert(`${student.name} registered successfully!`);
+                } else {
+                    const errorData = await response.json(); // Get error data
+                    alert(`Registration failed: ${errorData.message || 'unknown error'}`); // Show error message
+                }
+            } catch (error) {
+                alert(`An error occurred: ${error.message}`); // Show error message if fetch fails
+            }
+        });
+    </script>
+    
+</body>
+</html>
